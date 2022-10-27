@@ -6,62 +6,82 @@ const Todo = new mongoose.model("Todo", todoSchema);
 
 //get all the todos
 router.get("/", async (req, res) => {
-  res.send("hello");
+  try {
+    const result = await Todo.find();
+    res.status(200).json({
+      data: result,
+      message: "Get all data Success",
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: "There was a server side error for inserting a data",
+    });
+  }
 });
 
 //get a todo by id
-router.get("/:id", async (req, res) => {});
+router.get("/:id", async (req, res) => {
+  try {
+    const data = await Todo.findOne({ _id: req.params.id });
+    res.status(200).json({
+      data: data,
+      message: "Get a data successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: "There was a error getting a data.please try again later",
+    });
+  }
+});
 
 //post a todo
 router.post("/", async (req, res) => {
-  const newTodo = new Todo(req.body);
-  await newTodo.save((err) => {
-    if (err) {
-      res.status(500).json({
-        error: "There was a server side error",
-      });
-    } else {
-      res.status(200).json({
-        message: "Todo was inserted succesfully",
-      });
-    }
-  });
+  try {
+    const newTodo = new Todo(req.body);
+    await newTodo.save();
+    res.status(200).json({
+      message: "One Data inserted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: "There was a server side error for inserting a data",
+    });
+  }
 });
 //post multiple todo
 router.post("/all", async (req, res) => {
-  await Todo.insertMany(req.body, (err) => {
-    if (err) {
-      res.status(500).json({
-        error: "There was a server side error for inserting too many data",
-      });
-    } else {
-      res.status(200).json({
-        message: "Many records are inserted successfully",
-      });
-    }
-  });
+  try {
+    await Todo.insertMany(req.body);
+    res.status(200).json({
+      message: "Many records are inserted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: "There was a server side error for inserting too many data",
+    });
+  }
 });
-//put  todo
+//put a todo/ update a todo
 router.put("/:id", async (req, res) => {
   await Todo.updateOne(
     { _id: req.params.id },
     {
       $set: {
-        status: "active",
+        title: req.body.title,
+        description: req.body.description,
+        status: req.body.status,
       },
-    },
-    (err) => {
-      if (err) {
-        res.status(500).json({
-          error: "There was a server side error for updating data",
-        });
-      } else {
-        res.status(200).json({
-          message: "Data updated successfully",
-        });
-      }
     }
   );
+  try {
+    res.status(200).json({
+      message: "Data updated successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: "There was a server side error for updating data",
+    });
+  }
 });
 //delete  todo
 router.delete("/:id", async (req, res) => {});
