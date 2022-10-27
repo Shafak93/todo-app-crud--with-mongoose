@@ -18,6 +18,34 @@ router.get("/", async (req, res) => {
     });
   }
 });
+//get only inactive todos
+router.get("/inactive", async (req, res) => {
+  try {
+    const result = await Todo.find({ status: "inactive" });
+    res.status(200).json({
+      data: result,
+      message: "Get all inactive data found successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: "There was a server side error for inserting a data",
+    });
+  }
+});
+//get only active todos
+router.get("/active", async (req, res) => {
+  try {
+    const result = await Todo.find({ status: "active" });
+    res.status(200).json({
+      data: result,
+      message: "Get all active data found successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: "There was a server side error for inserting a data",
+    });
+  }
+});
 
 //get a todo by id
 router.get("/:id", async (req, res) => {
@@ -25,7 +53,7 @@ router.get("/:id", async (req, res) => {
     const data = await Todo.findOne({ _id: req.params.id });
     res.status(200).json({
       data: data,
-      message: "Get a data successfully",
+      message: `Get a ${data.title} found successfully`,
     });
   } catch (error) {
     res.status(500).json({
@@ -63,17 +91,17 @@ router.post("/all", async (req, res) => {
 });
 //put a todo/ update a todo
 router.put("/:id", async (req, res) => {
-  await Todo.updateOne(
-    { _id: req.params.id },
-    {
-      $set: {
-        title: req.body.title,
-        description: req.body.description,
-        status: req.body.status,
-      },
-    }
-  );
   try {
+    await Todo.updateOne(
+      { _id: req.params.id },
+      {
+        $set: {
+          title: req.body.title,
+          description: req.body.description,
+          status: req.body.status,
+        },
+      }
+    );
     res.status(200).json({
       message: "Data updated successfully",
     });
@@ -83,7 +111,18 @@ router.put("/:id", async (req, res) => {
     });
   }
 });
-//delete  todo
-router.delete("/:id", async (req, res) => {});
+//delete a todo
+router.delete("/:id", async (req, res) => {
+  try {
+    const data = await Todo.deleteOne({ _id: req.params.id });
+    res.status(200).json({
+      message: `${data._id} was deleted successfully`,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: `There was an error on server side deleting data`,
+    });
+  }
+});
 
 module.exports = router;
